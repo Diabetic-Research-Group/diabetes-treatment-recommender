@@ -1,0 +1,25 @@
+# Byte-compiled / caches
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Data and models (do not commit PHI or large binaries)
+data/
+models/
+*.h5
+*.pt
+*.pkl
+
+# Jupyter
+.ipynb_checkpoints
+
+# System files
+.DS_Store
+
+# Secrets
+.env
