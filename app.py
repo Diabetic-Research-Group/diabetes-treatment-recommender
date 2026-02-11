@@ -1,6 +1,6 @@
 # app.py
 import streamlit as st
-from engine import get_engine, map_nhanes_row
+from engine import get_engine
 import pandas as pd
 
 st.set_page_config(page_title="T2DM Treatment Expert System", layout="centered")
@@ -83,31 +83,38 @@ if submitted:
 
     st.subheader("Treatment Recommendation")
     if len(recs) == 0:
-        st.info(
-            "No rule fired. Please check inputs. "
-            "(If patient does have T2D, ensure 'Doctor told you have diabetes' is set in the dataset mapping or engine input.)"
-        )
+        st.info("No rule fired. Please check inputs. (If patient does have T2D, ensure 'Doctor told you have diabetes' is set.)")
     else:
         for i, r in enumerate(recs, 1):
             st.markdown(f"**{i}. {r}**")
 
-        # Use an expander to show explanations (recommended for Streamlit)
         with st.expander("Show Explanation and Guideline Text"):
             st.subheader("Explanation Based on Fired Rules")
+            
             for e in expl:
+                # Hide fallback rule ID
                 if e["id"] != "R_FALLBACK":
-                    st.markdown(f"### Rule: {e['id']}")
-                    st.write(f"**Reason (short):** {e['description']}")
-                    st.write(f"**Recommendation:** {e['recommendation']}")
+                    st.markdown(f"### Rule:")
 
-                    if e.get("dosage") and e["dosage"].strip() != "":
-                        st.write(f"**Recommended dosage:** {e['dosage']}")
+                st.write(f"**Reason (short):** {e['description']}")
+                st.write(f"**Recommendation:** {e['recommendation']}")
 
-                    if e.get("dosage_reason") and e["dosage_reason"].strip() != "":
-                        st.info(f"**Why this dosage?** {e['dosage_reason']}")
-                    
+                # Dosage info
+                if e.get("dosage") and e["dosage"].strip() != "":
+                    st.write(f"**Recommended dosage:** {e['dosage']}")
+
+                # Dosage rationale
+                if e.get("dosage_reason") and e["dosage_reason"].strip() != "":
+                    st.info(f"**Why this dosage?** {e['dosage_reason']}")
+
+                # Medicine / drug-class explanation (from JSON)
+                if e.get("explanation") and e["explanation"].strip() != "":
+                    st.write(f"**Medicine explanation:** {e['explanation']}")
+
+                if e.get("guideline_ref"):
                     st.write(f"**Guideline reference:** {e['guideline_ref']}")
-                    if e.get("guideline_text"):
-                        st.info(e["guideline_text"])
-                    st.markdown("---")
 
+                if e.get("guideline_text") and e["guideline_text"].strip() != "":
+                    st.markdown(f"> {e['guideline_text']}")
+
+                st.markdown("---")
